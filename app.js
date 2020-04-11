@@ -1,13 +1,14 @@
 var express = require('express');
 var app = express();
-var serv = require('http').Server(app);
+var serv = require('http').createServer();
 
-app.get('/',function(req, res) {
-	res.sendFile(__dirname + '/client/index.html');
+const PORT = process.env.PORT || 3231
+
+
+serv.listen(PORT, ()=>{
+	console.log("Connected to port:" + PORT);
 });
-app.use('/client',express.static(__dirname + '/client'));
 
-serv.listen(2000);
 console.log("Server started.");
 
 var SOCKET_LIST = {};
@@ -234,7 +235,6 @@ io.sockets.on('connection', function(socket){
 	socket.on('signIn',function(data){
 			Player.onConnect(socket);
 			socket.emit('signInResponse',{success:true});
-	
 	});
 		
 	socket.on('disconnect',function(){
@@ -281,13 +281,3 @@ setInterval(function(){
 	removePack.bullet = [];
 	
 },1000/25);
-
-
-
-
-
-
-
-
-
-
