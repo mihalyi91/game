@@ -4,22 +4,23 @@
 </div>
 
 <div id="gameDiv" style="display:none;">
-	<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
+	<canvas id="ctx" width="700" height="600" style="border:1px solid #000000;"></canvas>
 
-	<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
-		<div>Hello!</div>
+	<div id="chat-text" style="width:700px;height:150px;overflow-y:scroll">
 	</div>
 
 	<form id="chat-form">
-		<input id="chat-input" type="text" style="width:500px"></input>
+		<input id="chat-input" type="text" style="width:700px"></input>
 	</form>
 </div>
 
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
-	var WIDTH = 500;
-	var HEIGHT = 500;
-	var socket = io("https://rpg-game-hun.herokuapp.com/");
+	var WIDTH = 700;
+	var HEIGHT = 600;
+	var MAX_WIDTH = 2000;
+	var MAX_HEIGHT = 2000;
+	var socket = io("http://localhost:3231");
 	
 	//sign
 	var signDiv = document.getElementById('signDiv');
@@ -75,6 +76,8 @@
 	Img.bullet.src = './img/bullet.png';
 	Img.map = new Image();
 	Img.map.src = './img/map.png';
+	Img.tileset = new Image();
+	Img.tileset.src = './img/tileset.png';
 	
 	var ctx = document.getElementById("ctx").getContext("2d");
 	ctx.font = '30px Arial';
@@ -105,7 +108,6 @@
 				0,0,Img.player.width,Img.player.height,
 				x-width/2,y-height/2,width,height);
 			
-			//ctx.fillText(self.score,self.x,self.y-60);
 		}
 		
 		Player.list[self.id] = self;
@@ -144,7 +146,6 @@
 	socket.on('init',function(data){	
 		if(data.selfId)
 			selfId = data.selfId;
-		//{ player : [{id:123,number:'1',x:0,y:0},{id:1,number:'2',x:0,y:0}], bullet: []}
 		for(var i = 0 ; i < data.player.length; i++){
 			new Player(data.player[i]);
 		}
@@ -194,7 +195,7 @@
 	setInterval(function(){
 		if(!selfId)
 			return;
-		ctx.clearRect(0,0,500,500);
+		ctx.clearRect(0,0,WIDTH,HEIGHT);
 		drawMap();
 		drawScore();
 		for(var i in Player.list)
@@ -206,12 +207,24 @@
 	var drawMap = function(){
 		var x = WIDTH/2 - Player.list[selfId].x;
 		var y = HEIGHT/2 - Player.list[selfId].y;
-		ctx.drawImage(Img.map,x,y);
+
+		ctx.drawImage(Img.tileset, 448, 0, 64, 64, x -(WIDTH/2), y-(HEIGHT/2), MAX_WIDTH + WIDTH, MAX_HEIGHT + HEIGHT); 
+		ctx.drawImage(Img.map, x, y, MAX_WIDTH, MAX_HEIGHT); 
 	}
 	
 	var drawScore = function(){
 		ctx.fillStyle = 'white';
 		ctx.fillText(Player.list[selfId].score,0,30);
+
+		var y = 40;
+		for(var i in Player.list)
+		{
+			if(i != selfId)
+			{
+				ctx.fillText(Player.list[i].score,y,30);
+				y += 40;
+			}
+		}
 	}
 	
 	document.onkeydown = function(event){

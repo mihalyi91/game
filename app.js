@@ -3,7 +3,10 @@ var app = express();
 var serv = require('http').createServer();
 
 const PORT = process.env.PORT || 3231
-
+const MAP_MAX_X = 2000;
+const MAP_MAX_Y = 2000;
+const MAP_MIN_X = 0;
+const MAP_MIN_Y = 0;
 
 serv.listen(PORT, ()=>{
 	console.log("Connected to port:" + PORT);
@@ -25,8 +28,10 @@ var Entity = function(){
 		self.updatePosition();
 	}
 	self.updatePosition = function(){
-		self.x += self.spdX;
-		self.y += self.spdY;
+		if(self.x + self.spdX <  MAP_MAX_X && self.x + self.spdX > MAP_MIN_X)
+			self.x += self.spdX;
+		if(self.y + self.spdY <  MAP_MAX_Y && self.y + self.spdY > MAP_MIN_Y)
+			self.y += self.spdY;
 	}
 	self.getDistance = function(pt){
 		return Math.sqrt(Math.pow(self.x-pt.x,2) + Math.pow(self.y-pt.y,2));
@@ -176,8 +181,8 @@ var Bullet = function(parent,angle){
 					if(shooter)
 						shooter.score += 1;
 					p.hp = p.hpMax;
-					p.x = Math.random() * 500;
-					p.y = Math.random() * 500;					
+					p.x = Math.random() * MAP_MAX_X;
+					p.y = Math.random() * MAP_MAX_Y;					
 				}
 				self.toRemove = true;
 			}
